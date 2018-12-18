@@ -38,26 +38,26 @@ begin
 	
 	else	/* Slave scope */
 	begin
-		if(CBE == ) /* Write from slave side */
-		begin
-			case (par)
-				0: if (adress == adres 3al bus )
-					begin
+		case (par)
+			0: if (adress == adres 3al bus )
+				begin
+					//increment par by 2 in each state
+					//odd numbers for write
+					//even numbers for read
+					if(CBE == ) /* Write from slave side */
+					begin	
+						
 						par=1;
-					end	
-
-			endcase
-		end
-		else (CBE == ) /* Read from slave side */
-		begin
-			case (par)
-				0: if (adress == adres 3al bus )
+					end
+					else if (CBE == ) /* read from slave side*/
 					begin
-						par=1;
-					end	
-			endcase
-		end
-
+						
+						par=2;
+					end
+				end	
+			1:
+			2:
+		endcase
 	end
 
 /*
