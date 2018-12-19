@@ -25,15 +25,49 @@ assign DEVSEL = SelectedAddress? 1'b0 :  ;
 
 always @(posedge CLK)
 begin
+    if(~force_Request) begin counter = counter + 1; end
+	
 	if(~GNT) /* Master Scope */
 	begin
 		if(RW) /* Write from master side */
 		begin
 			case (par)
-
+			0: begin
+   			   @negedge
+			   begin
+			   FRAME <= 1'b0;
+			   REG_A <= address_To_Contact;
+			   REG_CBE <= command el write;
+			   par = 1;
+			   end
+			   end
+			1: begin
+			   @negedge
+			   begin
+			   if(counter > 1)
+			   begin
+			   REG_IRDY <= 1'b0;
+			   REG_CBE <= 4'b1111;
+			   REG_D <= data el hanktebha;
+			   counter = counter - 1;
+			   end
+			   else if (counter == 1)
+			   begin 
+			   par = 2; 
+			   FRAME <= 1'b1; 
+			   REG_D <= data el hanktebha;
+			   end
+			   end 
+			   end
+            2: begin
+               @negedge
+               begin
+               REG_IRDY <= 1'b1;
+               REG_D <= 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
+               end
+               end			   
 			endcase
-		end
-		else /* Read from master side */
+		end		else /* Read from master side */
 		begin
 			case (par)
 
