@@ -51,8 +51,14 @@ begin
 					//even numbers for read
 					if(CBE == ) /* Write from slave side */
 					begin	
+						@negedge
+						 begin
+						   DEVSEL<=1'b0;
+                                        	   TRDY<=1'b0;
+
+						 end //end of negative edge
 						
-						par=1;
+					 par=1;
 					end
 					else if (CBE == ) /* read from slave side*/
 					begin
@@ -60,7 +66,21 @@ begin
 						par=2;
 					end
 				end	
-			1:
+			1: for(integer i=0;i<4;i=i+1) //for loop that checks BE and assigns the corresponding bits into the memory
+				begin                      
+				  if(CBE[i]==1'b1)
+					 begin 
+					 memory[adrress eli geh][8*i:(8*(i+1))-1]<=AD[8*i:(8*(i+1))-1]; //memory[row][byte]
+					 end
+				end //end for loop
+			if (FRAME=1'b1) 
+			begin
+			  @negedge
+				begin
+				  DEVSEL<=1'b1;
+                                  TRDY<=1'b1;
+                                 end
+			end	
 			2:
 		endcase
 	end
@@ -80,4 +100,4 @@ begin
 
 end
 
-endmodule 
+endmodule
