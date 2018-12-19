@@ -51,14 +51,13 @@ begin
 					//even numbers for read
 					if(CBE == ) /* Write from slave side */
 					begin	
-						@negedge
+					@negedge
 						 begin
 						   DEVSEL<=1'b0;
                                         	   TRDY<=1'b0;
 
-						 end //end of negative edge
-						
-					 par=1;
+						 end //end of negative edge	
+						par=1;
 					end
 					else if (CBE == ) /* read from slave side*/
 					begin
@@ -100,4 +99,4 @@ begin
 
 end
 
-endmodule
+endmodule 
