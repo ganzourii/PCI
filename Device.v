@@ -59,15 +59,17 @@ begin
 			   end
 			   end 
 			   end
-            2: begin
-               @negedge
-               begin
-               REG_IRDY <= 1'b1;
-               REG_D <= 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
-               end
-               end			   
-			endcase
-		end		else /* Read from master side */
+                        2: begin
+                           @negedge
+                           begin
+                           REG_IRDY <= 1'b1;
+                           REG_D <= 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
+                           end
+                           end			   
+			   endcase
+		end	
+		
+		else /* Read from master side */
 		begin
 			case (par)
 
