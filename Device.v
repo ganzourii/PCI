@@ -1,21 +1,26 @@
-module Device (DeviceAddress[1:0],force_Request,address_To_Contact[1:0],RW,address_Enable,GNT,REQ,AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK);
+module Device (DeviceAddress[1:0],force_Request,address_To_Contact[1:0],RW,GNT,REQ,AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK,RST);
 
-input reg RW,DeviceAddress[1:0],force_Request,address_To_Contact[1:0],address_Enable;
-input  CLK,GNT;
 output REQ,FRAME;
-inout  AD[31:0],IRDY,TRDY,CBE[3:0];
 
+input  RW,CLK,GNT,RST,force_Request;
+input  [1:0] address_To_Contact;
+input  [1:0] DeviceAddress;
 
+inout IRDY,TRDY,DEVSEL;
+inout [31:0] AD;
+inout [3:0] CBE;
 
+reg REG_IRDY;
+reg REG_TRDY;
 reg [31:0] REG_D;
 reg [1:0]  REG_A;
-reg [3:0] REG_CBE;
-reg [31:0] Memory [9:0];
+reg [3:0]  REG_CBE;
+reg [31:0] Memory [0:9];
 integer    counter;
-
+reg SelectedAddress; 
 
 assign REQ    = ~force_Request;
-assign DEVSEL = ~address_Enable;
+assign DEVSEL = SelectedAddress? 1'b0 :  ;
 
 
 always @(posedge CLK)
