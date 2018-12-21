@@ -1,3 +1,4 @@
+
 module Device (DeviceAddress[1:0],force_Request,address_To_Contact[1:0],WriteData,WR,GNT,REQ,AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK,RST);
 
 output reg REQ;
@@ -30,12 +31,12 @@ integer i;
 
 assign REQ = force_Request;
 assign DEVSEL = SelectedAddress? 1'b0 : 1'bz ;
-/*
-always @ (posedge force_Request)
-begin
-REQ<=0;
-end
-*/
+
+//always @ (posedge force_Request)
+//begin
+//REQ<=0;
+//end
+
 always @ (negedge GNT)
 begin
 MasterNotSlave<=1'b1;
@@ -56,9 +57,9 @@ else
 begin
     if(~force_Request) begin countREQ = countREQ + 1; end
 	
-	if(MasterNotSlave) /* Master Scope */
+	if(MasterNotSlave) //  Master Scope 
 	begin
-		if(WR) /* Write from master side */
+		if(WR) // Write from master side 
 		begin
 			case (state)
 			0: @(negedge CLK)
@@ -100,7 +101,7 @@ begin
 	endcase
 		end	
 		
-		else /* Read from master side */
+		else // Read from master side 
 		begin
 			case (state)
 
@@ -156,15 +157,15 @@ begin
 		end
 	end
 	
-	else	/* Slave scope */
+	else	// Slave scope 
 	begin
 		case (state)
-			0: if (adress == adres 3al bus )
+			0: if (DeviceAddress == AD [1:0] )
 				begin
 					//increment state by 2 in each state
 					//odd numbers for write
 					//even numbers for read
-					if(CBE == ) /* Write from slave side */
+					if(CBE == ) // Write from slave side 
 					begin	
 
 						@(negedge CLK)
@@ -174,7 +175,7 @@ begin
 						state=1;
 						end //end of negative edge	
 					end
-					else if (CBE == ) /* read from slave side*/
+					else if (CBE == ) // read from slave side
 					begin
 
 						@(negedge CLK)
@@ -231,3 +232,58 @@ begin
 end
 
 endmodule 
+
+
+/*
+
+module arbiter #(parameter NUM_PORTS=8)
+	      (input                               clk,
+    	       input                               rst,
+               input      [NUM_PORTS-1:0]          req,
+	       input	  			   framein,
+    	       output reg [NUM_PORTS-1:0]          gnt);
+integer i,j;
+reg[$clog2(NUM_PORTS-1):0] num_req; //number of requests in one cycle
+reg[NUM_PORTS-1:0] buffer;
+always @(posedge clk or req)
+	begin
+		
+		if(rst==1'b1) begin gnt<=(NUM_PORTS)'b0000_0000; end
+		else begin
+			gnt<=(NUM_PORTS)'b0000_0000;
+			buffer <= req;
+			for(i=0;i<8;i=i+1)begin
+				if(req[i]==1'b1) begin num_req<=num_req+1; end
+			end
+		end
+        end
+
+always @(posedge clk and framein)
+	begin
+
+		if(framein==1'b1) begin
+		if(num_req>($clog2(NUM_PORTS-1))'b1) begin 
+			for(j=0;gnt==(NUM_PORTS-1)'b0;j=j+1)begin
+				if(buffer[j]==1'b1) begin
+					gnt<=(NUM_PORTS)'b0000_0000;
+					gnt[j]<=buffer[j]; 
+					buffer[j]<=1'b0;
+					num_req<=num_req-1;
+				end
+			end
+		end
+		else if(num_req==($clog2(NUM_PORTS-1))'b1)begin  //have one req
+			gnt<=buffer;
+			buffer<=(NUM_PORTS-1)'b0;
+			num_req<=num_req-1;
+		end
+		//else begin end 			      //have no requests
+
+		else if(framein==1'b0) begin
+			
+		end
+		end
+
+	end
+endmodule
+*/
