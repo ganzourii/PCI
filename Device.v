@@ -165,7 +165,11 @@ begin
 					//even numbers for read
 					if(CBE == ) /* Write from slave side */
 					begin	
+<<<<<<< HEAD
 						@(negedge CLK)
+=======
+						@(negedge clk)
+>>>>>>> e2b73d53e8247447da8eb92e7fc320fad3c87ce3
 						begin
 						REG_DEVSEL<=1'b0;
 						REG_TRDY<=1'b0;
@@ -174,7 +178,11 @@ begin
 					end
 					else if (CBE == ) /* read from slave side*/
 					begin
+<<<<<<< HEAD
 						@(negedge CLK)
+=======
+						@(negedge clk)
+>>>>>>> e2b73d53e8247447da8eb92e7fc320fad3c87ce3
 						begin
 						REG_DEVSEL<=1'b0;
 						par=2;
@@ -191,20 +199,32 @@ begin
 				end //end for loop
 				if (FRAME=1'b1) 
 				begin
+<<<<<<< HEAD
 					@(negedge CLK)
+=======
+					@(negedge clk)
+>>>>>>> e2b73d53e8247447da8eb92e7fc320fad3c87ce3
 					begin
 					REG_DEVSEL<=1'b1;
 					REG_TRDY<=1'b1;
 					par=0;
 					end
 				end	
+<<<<<<< HEAD
 			2: @(negedge CLK)
+=======
+			2: @(negedge clk)
+>>>>>>> e2b73d53e8247447da8eb92e7fc320fad3c87ce3
 				begin
 				REG_TRDY<=1'b0;
 				REG_D<=(IRDY)?Data2write;
 				par=3;
 				end
+<<<<<<< HEAD
 			3: @(negedge CLK)
+=======
+			3: @(negedge clk)
+>>>>>>> e2b73d53e8247447da8eb92e7fc320fad3c87ce3
 				begin
 				    if(~FRAME)
 					begin
