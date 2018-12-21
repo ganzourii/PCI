@@ -196,14 +196,12 @@ begin
 	
 	      		1:  begin
 
-				for(i=0;i<4;i=i+1) //for loop that checks BE and assigns the corresponding bits into the memory
-				begin                      
-				  if(CBE[i]==1'b1)
-					 begin 
-					 
-					 Memory[counter][(8*i):((8*(i+1))-1)]<=AD[(8*i):((8*(i+1))-1)]; //memory[row][byte]
-					 end
-				end //end for loop
+			    //for loop that checks BE and assigns the corresponding bits into the memory
+				 Memory[counter][7:0]  <=(CBE[0])? AD[7:0]  :Memory[counter][7:0];
+				 Memory[counter][15:8] <=(CBE[1])? AD[15:8] :Memory[counter][15:8];
+				 Memory[counter][23:16]<=(CBE[2])? AD[23:16]:Memory[counter][23:16];
+				 Memory[counter][31:24]<=(CBE[3])? AD[31:24]:Memory[counter][31:24];
+				 //Memory[counter][(8*i):((8*(i+1))-1)]<=AD[(8*i):((8*(i+1))-1)]; //memory[row][byte]
                                 if(counter ==9)begin counter =0; end
 				else begin counter = counter + 1; end
 				if (FRAME == 1'b1) 
