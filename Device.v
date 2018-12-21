@@ -20,7 +20,7 @@ reg [31:0] REG_D;
 reg [1:0]  REG_A;
 reg [3:0]  REG_CBE;
 reg [31:0] Memory [0:9];
-//reg [31:0] Data2write;
+reg [31:0] Data2write;
 reg MasterNotSlave;
 integer    counter;
 reg SelectedAddress; 
@@ -160,12 +160,13 @@ begin
 	else	// Slave scope 
 	begin
 		case (state)
-			0: if (DeviceAddress == AD [1:0] )
+			0: begin
+				if (DeviceAddress == AD [1:0] )
 				begin
 					//increment state by 2 in each state
 					//odd numbers for write
 					//even numbers for read
-					if(CBE == ) // Write from slave side 
+					if(CBE == 4'b0000) // Write from slave side 
 					begin	
 
 						@(negedge CLK)
@@ -175,7 +176,7 @@ begin
 						state=1;
 						end //end of negative edge	
 					end
-					else if (CBE == ) // read from slave side
+					else if (CBE ==4'b0001 ) // read from slave side
 					begin
 
 						@(negedge CLK)
@@ -185,15 +186,21 @@ begin
 						end //end of negative edge	
 
 					end
-				end	
-			1: for(i=0;i<4;i=i+1) //for loop that checks BE and assigns the corresponding bits into the memory
+				end
+			end
+	
+	      		1:  begin
+
+				for(i=0;i<4;i=i+1) //for loop that checks BE and assigns the corresponding bits into the memory
 				begin                      
 				  if(CBE[i]==1'b1)
 					 begin 
-					 memory[adrress eli geh][8*i:(8*(i+1))-1]<=AD[8*i:(8*(i+1))-1]; //memory[row][byte]
+					 Memory[counter][8*i:(8*(i+1))-1]<=AD[8*i:(8*(i+1))-1]; //memory[row][byte]
 					 end
 				end //end for loop
-				if (FRAME=1'b1) 
+                                if(counter ==9)begin counter =0; end
+				else begin counter = counter + 1; end
+				if (FRAME == 1'b1) 
 				begin
 
 					@(negedge CLK)
@@ -203,19 +210,23 @@ begin
 					state=0;
 					end
 				end	
+			    end
 
-			2: @(negedge CLK)
+			2: begin
+			 	@(negedge CLK)
 				begin
 				REG_TRDY<=1'b0;
-				REG_D<=(IRDY)?Data2write;
+				if (IRDY) begin REG_D <= Data2write; end
 				state=3;
 				end
+			end
 
-			3: @(negedge CLK)
+			3: begin
+				 @(negedge CLK)
 				begin
 				    if(~FRAME)
 					begin
-					REG_D<=(IRDY)?Data2write;
+					if (IRDY) begin REG_D<= Data2write; end
 					end
 					else
 					begin
@@ -225,7 +236,8 @@ begin
 					state=0;
 					end
 				end
-			endcase
+			end
+		endcase
 	end
 
 
@@ -234,56 +246,3 @@ end
 endmodule 
 
 
-/*
-
-module arbiter #(parameter NUM_PORTS=8)
-	      (input                               clk,
-    	       input                               rst,
-               input      [NUM_PORTS-1:0]          req,
-	       input	  			   framein,
-    	       output reg [NUM_PORTS-1:0]          gnt);
-integer i,j;
-reg[$clog2(NUM_PORTS-1):0] num_req; //number of requests in one cycle
-reg[NUM_PORTS-1:0] buffer;
-always @(posedge clk or req)
-	begin
-		
-		if(rst==1'b1) begin gnt<=(NUM_PORTS)'b0000_0000; end
-		else begin
-			gnt<=(NUM_PORTS)'b0000_0000;
-			buffer <= req;
-			for(i=0;i<8;i=i+1)begin
-				if(req[i]==1'b1) begin num_req<=num_req+1; end
-			end
-		end
-        end
-
-always @(posedge clk and framein)
-	begin
-
-		if(framein==1'b1) begin
-		if(num_req>($clog2(NUM_PORTS-1))'b1) begin 
-			for(j=0;gnt==(NUM_PORTS-1)'b0;j=j+1)begin
-				if(buffer[j]==1'b1) begin
-					gnt<=(NUM_PORTS)'b0000_0000;
-					gnt[j]<=buffer[j]; 
-					buffer[j]<=1'b0;
-					num_req<=num_req-1;
-				end
-			end
-		end
-		else if(num_req==($clog2(NUM_PORTS-1))'b1)begin  //have one req
-			gnt<=buffer;
-			buffer<=(NUM_PORTS-1)'b0;
-			num_req<=num_req-1;
-		end
-		//else begin end 			      //have no requests
-
-		else if(framein==1'b0) begin
-			
-		end
-		end
-
-	end
-endmodule
-*/
