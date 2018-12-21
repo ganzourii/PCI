@@ -37,7 +37,7 @@ assign IRDY   = MasterNotSlave? REG_IRDY   : 1'bz ;
 assign CBE    = MasterNotSlave? REG_CBE    : 4'bzzzz ;
 assign DEVSEL = MasterNotSlave?   1'bz     : REG_DEVSEL;
 assign TRDY   = MasterNotSlave?   1'bz     : REG_TRDY ;
-assign AD = (OutNotIn&&AddNotData)? REG_A : (OutNotIn&&(~AddNotData))? REG_D :  32'bzzzzzzzz;
+assign AD = (OutNotIn&&AddNotData)? REG_A : (OutNotIn&&(~AddNotData))? REG_D :  32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
 
 //always @ (posedge force_Request)
 //begin
@@ -68,7 +68,7 @@ end
 
 else 
 begin
-    if(~force_Request) begin countREQ = countREQ + 1; end
+        if(~REQ) begin countREQ = countREQ + 1; end
 	
 	if(MasterNotSlave) //  Master Scope 
 	begin
@@ -113,7 +113,6 @@ begin
 				   begin
 				   OutNotIn<=0;
 				   REG_IRDY <= 1'b1;
-				   REG_D <= 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
 				   state<=0;
 				   MasterNotSlave<=1'b0;
 				   end
@@ -132,7 +131,7 @@ begin
 				  		AddNotData<=1;
 						REG_FRAME<=1'b0;
 						REG_A<=address_To_Contact;
-						REG_CBE <= WR; //command el write
+						REG_CBE <= WR; //command el read
 						state<=1;
 						end
 					    end		
@@ -140,9 +139,8 @@ begin
 				3'b001: begin 
 							@(negedge CLK)
 							begin
-				  			OutNotIn<=1;
+				  			OutNotIn<=0;
 				   			AddNotData<=0;
-							REG_A<=2'bzz;
 							REG_IRDY<=1'b0;
 							state<=2;
 							end
@@ -150,7 +148,6 @@ begin
 
 				3'b010: begin 
 							state<=3;
-				  			OutNotIn<=0;
 						end	
 
 				3'b011:  begin
