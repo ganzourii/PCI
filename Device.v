@@ -1,6 +1,6 @@
 module Device (DeviceAddress[1:0],force_Request,address_To_Contact[1:0],WriteData,RW,GNT,REQ,AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK,RST);
 
-output REQ;
+output reg REQ;
 
 input  RW,CLK,GNT,RST,force_Request;
 input  [1:0] address_To_Contact;
@@ -23,33 +23,53 @@ reg [31:0] Data2write;
 reg MasterNotSlave;
 integer    counter;
 reg SelectedAddress; 
+reg par;
+reg [2:0] countREQ;
 
 
 
-assign REQ    = ~force_Request;
-assign DEVSEL = SelectedAddress? 1'b0 :  ;
+assign DEVSEL = SelectedAddress? 1'b0 : 1'bz ;
+
+always @ (posedge force_Request)
+begin
+REQ<=0;
+end
+
+always @ (negedge GNT)
+begin
+MasterNotSlave<=1'b1;
+end
 
 
-always @(posedge CLK)
+always @(posedge CLK,RST)
+begin
+if(RST)
+begin 
+par=0;
+counter =0;
+countREQ =0;
+MasterNotSlave=0;
+end 
+
+else 
 begin
     if(~force_Request) begin counter = counter + 1; end
 	
-	if(~GNT) /* Master Scope */
+	if(MasterNotSlave) /* Master Scope */
 	begin
 		if(RW) /* Write from master side */
 		begin
 			case (par)
-			0: begin
-				   @negedge
+			0: @(negedge CLK)
 				   begin
 				   REG_FRAME <= 1'b0;
 				   REG_A <= address_To_Contact;
-				   REG_CBE <= command el write;
+				   REG_CBE <= RW;//command el write
 				   par = 1;
 				   end
-			   end
+			   
 			1: begin
-				   @negedge
+				   @(negedge CLK)
 				   begin
 				   if(counter > 1)
 				   begin
@@ -67,20 +87,70 @@ begin
 				   end 
 			   end
             2: begin
-				   @negedge
+				   @(negedge CLK)
 				   begin
 				   REG_IRDY <= 1'b1;
 				   REG_D <= 32'bzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz;
 				   par=0;
+				   MasterNotSlave<=1'b0;
 				   end
                end			   
-		    endcase
+	endcase
 		end	
 		
 		else /* Read from master side */
 		begin
 			case (par)
 
+				3'b000: begin 
+							@(negedge CLK)
+							begin
+							REG_FRAME<=1'b0;
+							REG_A<=address_To_Contact;
+							REG_CBE <= WR; //command el write
+							par=1;
+							end
+					    end		
+				
+				3'b001: begin 
+							@(negedge CLK)
+							begin
+							REG_A<=2'bzz;
+							REG_IRDY<=1'b0;
+							par=2;
+							end
+						end	
+
+				3'b010: begin 
+							par=3;
+						end	
+
+				3'b011:  @(negedge CLK)
+					 begin
+						if(~DEVSEL&&~TRDY&&~IRDY&&(countREQ>0))
+							begin
+							counter=counter-1;
+							Memory[counterM]=AD;
+							if(counterM ==9)begin counterM =0; end
+							else begin counterM ++; end
+
+							if (counterREQ ==1 )
+							begin
+							@(negedge CLK)
+							begin FRAME<=1; end
+							end
+
+							else if (counterREQ==0)
+							begin
+							@(negedge CLK)
+							begin
+								REG_IRDY<=1;
+								par=0;
+								MasterNotSlave<=1'b0;
+							end
+							end
+						    end
+					  end
 			endcase
 		end
 	end
@@ -95,7 +165,7 @@ begin
 					//even numbers for read
 					if(CBE == ) /* Write from slave side */
 					begin	
-						@negedge
+						@(negedge CLK)
 						begin
 						REG_DEVSEL<=1'b0;
 						REG_TRDY<=1'b0;
@@ -104,7 +174,7 @@ begin
 					end
 					else if (CBE == ) /* read from slave side*/
 					begin
-						@negedge
+						@(negedge CLK)
 						begin
 						REG_DEVSEL<=1'b0;
 						par=2;
@@ -121,20 +191,20 @@ begin
 				end //end for loop
 				if (FRAME=1'b1) 
 				begin
-					@negedge
+					@(negedge CLK)
 					begin
 					REG_DEVSEL<=1'b1;
 					REG_TRDY<=1'b1;
 					par=0;
 					end
 				end	
-			2: @negedge
+			2: @(negedge CLK)
 				begin
 				REG_TRDY<=1'b0;
 				REG_D<=(IRDY)?Data2write;
 				par=3;
 				end
-			3: @negedge
+			3: @(negedge CLK)
 				begin
 				    if(~FRAME)
 					begin
@@ -150,9 +220,6 @@ begin
 				end
 			endcase
 	end
-
-
-
 
 
 end
