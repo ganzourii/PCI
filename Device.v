@@ -95,7 +95,7 @@ begin
 					//even numbers for read
 					if(CBE == ) /* Write from slave side */
 					begin	
-						@negedge
+						@(negedge clk)
 						begin
 						REG_DEVSEL<=1'b0;
 						REG_TRDY<=1'b0;
@@ -104,7 +104,7 @@ begin
 					end
 					else if (CBE == ) /* read from slave side*/
 					begin
-						@negedge
+						@(negedge clk)
 						begin
 						REG_DEVSEL<=1'b0;
 						par=2;
@@ -121,20 +121,20 @@ begin
 				end //end for loop
 				if (FRAME=1'b1) 
 				begin
-					@negedge
+					@(negedge clk)
 					begin
 					REG_DEVSEL<=1'b1;
 					REG_TRDY<=1'b1;
 					par=0;
 					end
 				end	
-			2: @negedge
+			2: @(negedge clk)
 				begin
 				REG_TRDY<=1'b0;
 				REG_D<=(IRDY)?Data2write;
 				par=3;
 				end
-			3: @negedge
+			3: @(negedge clk)
 				begin
 				    if(~FRAME)
 					begin
