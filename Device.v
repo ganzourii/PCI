@@ -1,7 +1,7 @@
 
 module Device (DeviceAddress[1:0],force_Request,address_To_Contact[1:0],WriteData,WR,GNT,REQ,AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK,RST);
 
-output reg REQ;
+output REQ;
 
 input  WR,CLK,GNT,RST,force_Request;
 input  [1:0] address_To_Contact;
@@ -11,6 +11,7 @@ input  [31:0] WriteData;
 inout IRDY,TRDY,DEVSEL,FRAME;
 inout [31:0] AD;
 inout [3:0] CBE;
+
 
 reg REG_IRDY;
 reg REG_TRDY;
@@ -47,6 +48,10 @@ always @(posedge CLK,RST)
 begin
 if(RST)
 begin 
+REG_FRAME =1;
+REG_IRDY=1;
+REG_TRDY=1;
+REG_DEVSEL=1;
 state=0;
 counter =0;
 countREQ <=0;
@@ -99,7 +104,7 @@ begin
 				   end
                end			   
 	endcase
-		end	
+	end	
 		
 		else // Read from master side 
 		begin
@@ -139,7 +144,7 @@ begin
 							if (countREQ ==1 )
 							begin
 							@(negedge CLK)
-							begin FRAME=1; end
+							begin REG_FRAME<=1; end
 							end
 
 							else if (countREQ==0)
@@ -195,7 +200,8 @@ begin
 				begin                      
 				  if(CBE[i]==1'b1)
 					 begin 
-					 Memory[counter][8*i:(8*(i+1))-1]<=AD[8*i:(8*(i+1))-1]; //memory[row][byte]
+					 
+					 Memory[counter][(8*i):((8*(i+1))-1)]<=AD[(8*i):((8*(i+1))-1)]; //memory[row][byte]
 					 end
 				end //end for loop
                                 if(counter ==9)begin counter =0; end
@@ -241,8 +247,8 @@ begin
 	end
 
 
+ end
 end
-
 endmodule 
 
 
