@@ -35,7 +35,7 @@ WriteDataC = 8'hCCCCCCCC;
 //The Scenario
 //1. Device A requests the bus to contact Device B for 3 Data transactions (3 cycles):
 #1
-force_Request <= 3'b100;
+force_Request <= 3'b110;
 address_To_Contact_A <= 2'b01;
 WR <= 3'b001;
 #3
