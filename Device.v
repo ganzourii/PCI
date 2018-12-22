@@ -189,7 +189,7 @@ begin
 					//increment state by 2 in each state
 					//odd numbers for write
 					//even numbers for read
-					if(CBE == 4'b0000) // Write from slave side 
+					if(CBE == 4'b0001) // Write from slave side 
 					begin	
 
 						@(negedge CLK)
@@ -199,7 +199,7 @@ begin
 						state<=1;
 						end //end of negative edge	
 					end
-					else if (CBE ==4'b0001 ) // read from slave side
+					else if (CBE ==4'b0000 ) // read from slave side
 					begin
 
 						@(negedge CLK)
