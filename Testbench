@@ -1,3 +1,4 @@
+
 module testBench
 
 wire [2:0] REQ;
@@ -6,7 +7,9 @@ wire DEVSEL, FRAME, IRDY, TRDY;
 wire [31:0] AD;
 
 reg [2:0] force_Request;
-reg [1:0] address_To_Contact;
+reg [1:0] address_To_Contact_A;
+reg [1:0] address_To_Contact_B;
+reg [1:0] address_To_Contact_C;
 reg [2:0] WR;
 reg [1:0] DeviceAddressA;
 reg [1:0] DeviceAddressB;
@@ -22,7 +25,6 @@ CLK = 0;
 RST = 0;
 WR = 3'b000;
 force_Request = 3'b111;
-address_To_Contact = 2'b00;
 DeviceAddressA = 2'b00;
 DeviceAddressB = 2'b01;
 DeviceAddressC = 2'b10;
@@ -33,37 +35,37 @@ WriteDataC = 8'hCCCCCCCC;
 //The Scenario
 //1. Device A requests the bus to contact Device B for 3 Data transactions (3 cycles):
 #1
-force_Request <= 3'b110;
-address_To_Contact <= 2'b01;
+force_Request <= 3'b100;
+address_To_Contact_A <= 2'b01;
 WR <= 3'b001;
 #3
 //2. Device B requests the bus to contact Device A for 2 Data transactions (2 cycles):
 force_Request <= 3'b101;
-address_To_Contact <= 2'b00;
+address_To_Contact_B <= 2'b00;
 WR <= 3'b010;
 #2
 //3. Device C requests the bus for two transactions, and at the same time device A requests the bus again to communicate with Device C
 force_Request <= 3'b010;
-address_To_Contact <= 2'b10;
+address_To_Contact_A <= 2'b10;
+address_To_Contact_C <= 2'b00;
 WR <= 3'b001;
 #2
 force_Request <= 3'b011;
-address_To_Contact <= 2'b00;
 WR <= 3'b100;
 #1
 force_Request <= 3'b011;
-address_To_Contact <= 2'b01;
+address_To_Contact_C <= 2'b01;
 WR <= 3'b100;
 end
 
 always
 begin
-CLK = ~CLK;
+#1 CLK = ~CLK;
 end
 
-Device A (DeviceAddressA,force_Request[0],address_To_Contact,WriteDataA,WR[0],GNT[0],REQ[0],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
-Device B (DeviceAddressB,force_Request[1],address_To_Contact,WriteDataB,WR[1],GNT[1],REQ[1],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
-Device C (DeviceAddressC,force_Request[2],address_To_Contact,WriteDataC,WR[2],GNT[2],REQ[2],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
+Device A (DeviceAddressA,force_Request[0],address_To_Contact_A,WriteDataA,WR[0],GNT[0],REQ[0],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
+Device B (DeviceAddressB,force_Request[1],address_To_Contact_B,WriteDataB,WR[1],GNT[1],REQ[1],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
+Device C (DeviceAddressC,force_Request[2],address_To_Contact_C,WriteDataC,WR[2],GNT[2],REQ[2],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
 arbiter X (CLK,RST,REQ,FRAME,GNT);
 
 endmodule
