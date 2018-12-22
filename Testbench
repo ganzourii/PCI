@@ -21,7 +21,7 @@ begin
 CLK = 0;
 RST = 0;
 WR = 3'b000;
-force_Request = 3'b000;
+force_Request = 3'b111;
 address_To_Contact = 2'b00;
 DeviceAddressA = 2'b00;
 DeviceAddressB = 2'b01;
@@ -29,6 +29,15 @@ DeviceAddressC = 2'b10;
 WriteDataA = 8'hAAAAAAAA;
 WriteDataB = 8'hBBBBBBBB;
 WriteDataC = 8'hCCCCCCCC;
+
+//The Scenario
+//1. Device A requests the bus to contact Device B for 3 Data transactions (3 cycles):
+#1
+force_Request[0] <= 1'b0;
+address_To_Contact <= 2'b01;
+WR[0] <= 1'b1;
+#3
+
 end
 
 always
@@ -36,9 +45,9 @@ begin
 CLK = ~CLK;
 end
 
-Device A (DeviceAddressA[1:0],force_Request[0],address_To_Contact[1:0],WriteDataA[31:0],WR[0],GNT[0],REQ[0],AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK,RST);
-Device B (DeviceAddressB[1:0],force_Request[1],address_To_Contact[1:0],WriteDataB[31:0],WR[1],GNT[1],REQ[1],AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK,RST);
-Device C (DeviceAddressC[1:0],force_Request[2],address_To_Contact[1:0],WriteDataC[31:0],WR[2],GNT[2],REQ[2],AD[31:0],IRDY,TRDY,FRAME,CBE[3:0],DEVSEL,CLK,RST);
+Device A (DeviceAddressA,force_Request[0],address_To_Contact,WriteDataA,WR[0],GNT[0],REQ[0],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
+Device B (DeviceAddressB,force_Request[1],address_To_Contact,WriteDataB,WR[1],GNT[1],REQ[1],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
+Device C (DeviceAddressC,force_Request[2],address_To_Contact,WriteDataC,WR[2],GNT[2],REQ[2],AD,IRDY,TRDY,FRAME,CBE,DEVSEL,CLK,RST);
 arbiter X (CLK,RST,REQ,FRAME,GNT);
 
 endmodule
