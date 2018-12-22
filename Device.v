@@ -258,6 +258,7 @@ begin
 					REG_DEVSEL<=1'b1;
 					REG_TRDY<=1'b1;
 					state<=0;
+					countREQ <=0;
 					end
 				end
 			end
